@@ -5,10 +5,14 @@ from rest_framework.exceptions import PermissionDenied,ValidationError
 from rest_framework.parsers import MultiPartParser, FormParser 
 from .models import Car,CarImage
 from .serializers import CarSerializer,CarImageSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import CarFilter
 
 class CarListView(ListAPIView):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CarFilter
 
 class CarDetailView(RetrieveAPIView):
     queryset = Car.objects.all()
