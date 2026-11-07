@@ -3,8 +3,8 @@ from django.conf import settings
 # Create your models here.
 class Car(models.Model):
     TRANSMISSION_CHOICES = [
-        ('Automatic', 'Automatic'),
-        ('Manual', 'Manual'),
+        ('automatic', 'Automatic'),
+        ('manual', 'Manual'),
         ('tiptronic', 'Tiptronic'),
     ]
     
