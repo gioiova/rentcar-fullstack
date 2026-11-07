@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from rest_framework.generics import ListAPIView,RetrieveAPIView,CreateAPIView
+from rest_framework.generics import ListAPIView,RetrieveAPIView,CreateAPIView,RetrieveUpdateAPIView,DestroyAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied,ValidationError
 from rest_framework.parsers import MultiPartParser, FormParser 
@@ -43,3 +43,29 @@ class CarImageCreateView(CreateAPIView):
             raise ValidationError("Only JPEG, PNG, and JPG images are allowed.")
         
         serializer.save(car=car)
+
+class CarUpdateView(RetrieveUpdateAPIView):
+    queryset = Car.objects.all()
+    serializer_class = CarSerializer
+    permission_classes = [IsAuthenticated]
+
+    
+    def get_object(self):
+        car = super().get_object()
+        if car.owner != self.request.user:
+            raise PermissionDenied("You can only update your own car.")
+        
+        return car
+
+class CarDeleteView(DestroyAPIView):
+    queryset = Car.objects.all()
+    serializer_class = CarSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        car = super().get_object()
+        if car.owner != self.request.user:
+            raise PermissionDenied("You can only delete your own car.")
+        
+        return car  
+
