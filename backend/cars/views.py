@@ -7,12 +7,18 @@ from .models import Car,CarImage
 from .serializers import CarSerializer,CarImageSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import CarFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 
 class CarListView(ListAPIView):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter,]
     filterset_class = CarFilter
+    
+    search_fields = ['brand','model']
+    
+    ordering_fields = ['price_per_day']
+    
 
 class CarDetailView(RetrieveAPIView):
     queryset = Car.objects.all()
