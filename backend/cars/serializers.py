@@ -30,6 +30,32 @@ class CarSerializer(serializers.ModelSerializer):
         model = Car
         fields = '__all__'
         read_only_fields = ['owner', 'created_at']
+
+    def validate_price_per_day(self,value):
+        if value <=0:
+            raise serializers.ValidationError("Price must be greater than 0.")
+        
+        return value
+    
+    def validate_year(self,value):
+        current_year = timezone.now().year
+        
+        if value < 1950  or value > current_year + 1:
+            raise serializers.ValidationError("invalid production year.")
+         
+        return value
+        
+    def validate_capacity(self,value):
+        if value < 1 or value > 50:
+            raise serializers.ValidationError("capacity must be between 1 and 50")
+        
+        return value
+    
+    def validate_fuel_tank_capacity(self,value):
+        if value < 1 or value > 300:
+            raise serializers.ValidationError("Fuel tank capacity must be between 1 and 300")
+        
+        return value
     
 class FavoriteSerializer(serializers.ModelSerializer):
     car = CarSerializer(read_only = True)
