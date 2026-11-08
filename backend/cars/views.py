@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework.generics import ListAPIView,RetrieveAPIView,CreateAPIView,RetrieveUpdateAPIView,DestroyAPIView
 from rest_framework.views import APIView
@@ -117,8 +118,12 @@ class RentalCreateView(CreateAPIView):
     serializer_class = RentalSerializer
     permission_classes = [IsAuthenticated]
     
+    @transaction.atomic
     def perform_create(self,serializer):
-        car = serializer.validated_data['car']
+        car = Car.objects.select_for_update().get(
+            pk = serializer.validated_data['car'].pk
+        )
+        
         start_date = serializer.validated_data['start_date']
         end_date = serializer.validated_data['end_date']
         
@@ -129,7 +134,7 @@ class RentalCreateView(CreateAPIView):
             car=car,
             start_date__lt = end_date,
             end_date__gt = start_date
-        )
+        ).exists()
         
         if is_booked:
             raise  ValidationError(
