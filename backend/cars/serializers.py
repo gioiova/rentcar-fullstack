@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Car,CarImage,Favorite,Rental
+from django.utils import timezone
 
 class CarImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,13 +27,23 @@ class RentalSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Rental
-        fields = ['id','car','car_details','days','total_price','created_at']
-        read_only_fields = ['total_price','created_at']
+        fields = ['id','car','car_details','start_date','end_date','days','total_price','created_at']
+        read_only_fields = ['total_price','created_at','days']
         
-        def validate_days(self,value):
-            if value < 1:
-                raise serializers.ValidationError(
-                    "rental days must be at least 1."
-                )
+        
+        def validate(self,attrs):
+            start_date = attrs['start_date']
+            end_date = attrs['end_date']
             
-            return value
+            if start_date < timezone.localdate():
+                raise serializers.ValidationError('Start date cannot be in the past.')
+            
+            if end_date <= start_date:
+                raise serializers.ValidationError('End date must be after start date.')
+            
+            return attrs
+    
+class BookedDatesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rental
+        fields = ['start_date','end_date']

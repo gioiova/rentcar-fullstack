@@ -5,12 +5,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied,ValidationError
 from rest_framework.parsers import MultiPartParser, FormParser 
 from .models import Car,CarImage,Favorite,Rental
-from .serializers import CarSerializer,CarImageSerializer,FavoriteSerializer,RentalSerializer
+from .serializers import CarSerializer,CarImageSerializer,FavoriteSerializer,RentalSerializer,BookedDatesSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import CarFilter
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework import status
 from rest_framework.response import Response
+from django.utils import timezone
 
 class CarListView(ListAPIView):
     queryset = Car.objects.all()
@@ -118,16 +119,29 @@ class RentalCreateView(CreateAPIView):
     
     def perform_create(self,serializer):
         car = serializer.validated_data['car']
-        days = serializer.validated_data['days']
+        start_date = serializer.validated_data['start_date']
+        end_date = serializer.validated_data['end_date']
         
         if car.owner == self.request.user:
             raise ValidationError("You cannot rent you own car")
         
+        is_booked = Rental.objects.filter(
+            car=car,
+            start_date__lt = end_date,
+            end_date__gt = start_date
+        )
+        
+        if is_booked:
+            raise  ValidationError(
+                'This car is already booked for these dates '
+            )
+        days = (end_date - start_date).days
         total_price = car.price_per_day * days
         
         serializer.save(
             user = self.request.user,
-            total_price = total_price
+            days = days,
+            total_price = total_price,
             
         )
 
@@ -139,3 +153,16 @@ class MyRentalsView(ListAPIView):
         return Rental.objects.filter(
             user = self.request.user
         ).order_by('-created_at')
+    
+    
+class CarBookedDatesView(ListAPIView):
+    serializer_class = BookedDatesSerializer
+    
+    
+    def get_queryset(self):
+        car = get_object_or_404(Car,pk=self.kwargs['pk'])
+        
+        return Rental.objects.filter(
+            car=car,
+            end_date__gte=timezone.localdate()
+        ).order_by('start_date')

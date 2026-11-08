@@ -61,6 +61,8 @@ class Rental(models.Model):
         on_delete= models.CASCADE,
         related_name='rentals'
     )
+    start_date = models.DateField()
+    end_date = models.DateField()
     days = models.PositiveIntegerField()
     total_price = models.DecimalField(
         max_digits=20,

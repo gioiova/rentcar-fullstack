@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CarListView, CarDetailView,CarCreateView,CarImageCreateView,CarUpdateView,CarDeleteView,FavoriteListView,FavoriteToggleView,RentalCreateView,MyRentalsView
+from .views import CarListView, CarDetailView,CarCreateView,CarImageCreateView,CarUpdateView,CarDeleteView,FavoriteListView,FavoriteToggleView,RentalCreateView,MyRentalsView,CarBookedDatesView
 
 urlpatterns = [
     path('', CarListView.as_view(), name='car-list'),
@@ -11,7 +11,8 @@ urlpatterns = [
     path('favorites/',FavoriteListView.as_view(),name='favorite-list'),
     path('<int:pk>/favorite/',FavoriteToggleView.as_view(),name='favorite-toggle'),
     path('rentals/',MyRentalsView.as_view(),name='my-rentals'),
-    path('rentals/create/',RentalCreateView.as_view(),name ='rental-create')
+    path('rentals/create/',RentalCreateView.as_view(),name ='rental-create'),
+    path('<int:pk>/booked-dates/',CarBookedDatesView.as_view(),name='car-booked-dates')
     
 ]
 
