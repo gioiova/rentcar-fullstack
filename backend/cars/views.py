@@ -4,8 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied,ValidationError
 from rest_framework.parsers import MultiPartParser, FormParser 
-from .models import Car,CarImage,Favorite
-from .serializers import CarSerializer,CarImageSerializer,FavoriteSerializer
+from .models import Car,CarImage,Favorite,Rental
+from .serializers import CarSerializer,CarImageSerializer,FavoriteSerializer,RentalSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import CarFilter
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -110,3 +110,32 @@ class FavoriteToggleView(APIView):
             {'message': 'Car added to favorites'},
             status=status.HTTP_201_CREATED
         )
+
+class RentalCreateView(CreateAPIView):
+    queryset = Rental.objects.all()
+    serializer_class = RentalSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def perform_create(self,serializer):
+        car = serializer.validated_data['car']
+        days = serializer.validated_data['days']
+        
+        if car.owner == self.request.user:
+            raise ValidationError("You cannot rent you own car")
+        
+        total_price = car.price_per_day * days
+        
+        serializer.save(
+            user = self.request.user,
+            total_price = total_price
+            
+        )
+
+class MyRentalsView(ListAPIView):
+    serializer_class = RentalSerializer
+    permission_classes  = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Rental.objects.filter(
+            user = self.request.user
+        ).order_by('-created_at')
