@@ -52,10 +52,6 @@ class CarImageCreateView(CreateAPIView):
         if car.images.count() >= 3:
             raise ValidationError("You can only upload up to 3 images for a car.")
         
-        image = serializer.validated_data['image']
-        
-        if image.content_type not in ['image/jpeg', 'image/png',   'image/jpg']:
-            raise ValidationError("Only JPEG, PNG, and JPG images are allowed.")
         
         serializer.save(car=car)
 

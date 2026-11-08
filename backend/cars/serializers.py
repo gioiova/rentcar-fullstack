@@ -1,11 +1,27 @@
 from rest_framework import serializers
 from .models import Car,CarImage,Favorite,Rental
 from django.utils import timezone
+from PIL import Image
 
 class CarImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarImage
         fields = ['id', 'image']
+    
+    def validate_image(self,value):
+        try:
+            image = Image.open(value)
+            image.verify()
+        except Exception:
+            raise serializers.ValidationError('invalid image file.')
+        finally:
+            value.seek(0)
+        
+        if image.format not in ['JPG','JPEG','PNG']:
+            raise serializers.ValidationError("Only JPG,JPEG and PNG   are allowed")
+        
+        return value
+    
 
 class CarSerializer(serializers.ModelSerializer):
     images = CarImageSerializer(many=True, read_only=True)
