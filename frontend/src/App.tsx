@@ -1,17 +1,50 @@
 import { useEffect, useState } from 'react';
 import Navbar from './components/Navbar';
 import CarCard from './components/CarCard';
+import CarFilters from './components/CarFilter';
+import type { CarFilterValues } from './components/CarFilter';
 import type { Car } from './types/car';
+
+const initialFilters: CarFilterValues = {
+  search: '',
+  city: '',
+  year_min: '',
+  year_max: '',
+  capacity: '',
+  ordering: '',
+};
 
 function App() {
   const [cars, setCars] = useState<Car[]>([]);
+  const [filters, setFilters] = useState<CarFilterValues>(initialFilters);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    const controller = new AbortController();
+
     async function fetchCars() {
+      setLoading(true);
+      setError('');
+
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/cars/');
+        const params = new URLSearchParams();
+
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value.trim() !== '') {
+            params.append(key, value);
+          }
+        });
+
+        const queryString = params.toString();
+
+        const url = `http://127.0.0.1:8000/api/cars/${
+          queryString ? `?${queryString}` : ''
+        }`;
+
+        const response = await fetch(url, {
+          signal: controller.signal,
+        });
 
         if (!response.ok) {
           throw new Error('Failed to fetch cars');
@@ -20,14 +53,22 @@ function App() {
         const data: Car[] = await response.json();
         setCars(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
+        if (controller.signal.aborted) return;
+
+        setError(
+          err instanceof Error ? err.message : 'Unknown error'
+        );
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     }
 
     fetchCars();
-  }, []);
+
+    return () => controller.abort();
+  }, [filters]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -60,16 +101,20 @@ function App() {
           </h2>
 
           <p className="mt-2 text-gray-500">
-            Choose from our available rental vehicles.
+            Find a vehicle that matches your preferences.
           </p>
         </div>
+
+        <CarFilters filters={filters} onChange={setFilters} />
 
         {loading && <p>Loading cars...</p>}
 
         {error && <p className="text-red-600">{error}</p>}
 
         {!loading && !error && cars.length === 0 && (
-          <p>No cars available yet.</p>
+          <p className="text-gray-500">
+            No cars found matching your filters.
+          </p>
         )}
 
         {!loading && !error && (
