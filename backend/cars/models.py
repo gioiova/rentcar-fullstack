@@ -30,3 +30,22 @@ class CarImage(models.Model):
     
     def __str__(self):
         return f"Image for {self.car.brand} {self.car.model} ({self.car.year})"
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='favorites'
+    )
+    car  = models.ForeignKey(
+        Car,
+        on_delete=models.CASCADE,
+        related_name='favorited_by'
+    )
+    
+    class Meta:
+        unique_together =('user','car')
+        
+    def __str__(self):
+        return f"{self.user} - {self.car}"
+    

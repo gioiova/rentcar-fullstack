@@ -1,13 +1,16 @@
 from django.shortcuts import get_object_or_404
-from rest_framework.generics import ListAPIView,RetrieveAPIView,CreateAPIView,RetrieveUpdateAPIView,DestroyAPIView, UpdateAPIView
+from rest_framework.generics import ListAPIView,RetrieveAPIView,CreateAPIView,RetrieveUpdateAPIView,DestroyAPIView
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied,ValidationError
 from rest_framework.parsers import MultiPartParser, FormParser 
-from .models import Car,CarImage
-from .serializers import CarSerializer,CarImageSerializer
+from .models import Car,CarImage,Favorite
+from .serializers import CarSerializer,CarImageSerializer,FavoriteSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import CarFilter
 from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework import status
+from rest_framework.response import Response
 
 class CarListView(ListAPIView):
     queryset = Car.objects.all()
@@ -79,3 +82,31 @@ class CarDeleteView(DestroyAPIView):
         
         return car  
 
+class FavoriteListView(ListAPIView):
+    serializer_class = FavoriteSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Favorite.objects.filter(user = self.request.user)
+    
+class FavoriteToggleView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        car = get_object_or_404(Car, pk=pk)
+
+        favorite, created = Favorite.objects.get_or_create(
+            user=request.user,
+            car=car
+        )
+
+        if not created:
+            favorite.delete()
+            return Response({
+                'message': 'Car removed from favorites'
+            })
+
+        return Response(
+            {'message': 'Car added to favorites'},
+            status=status.HTTP_201_CREATED
+        )

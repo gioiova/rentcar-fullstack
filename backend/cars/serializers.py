@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Car,CarImage
+from .models import Car,CarImage,Favorite
 
 class CarImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,4 +13,11 @@ class CarSerializer(serializers.ModelSerializer):
         model = Car
         fields = '__all__'
         read_only_fields = ['owner', 'created_at']
+    
+class FavoriteSerializer(serializers.ModelSerializer):
+    car = CarSerializer(read_only = True)
+    
+    class Meta:
+        model = Favorite
+        fields = ['id','car']
         

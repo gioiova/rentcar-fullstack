@@ -1,5 +1,7 @@
 from rest_framework import  serializers
 from django.contrib.auth import get_user_model,authenticate
+from cars.serializers import CarSerializer,FavoriteSerializer
+
 
 User = get_user_model()
 
@@ -39,3 +41,12 @@ class UserLoginSerializer(serializers.Serializer):
         
         attrs['user'] = user
         return attrs
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    cars = CarSerializer(many=True,read_only=True)
+    favorites = FavoriteSerializer(many=True,read_only=True)
+    
+    class Meta:
+        model = User
+        fields = ['id','first_name','last_name','phone_number','email','cars','favorites']
+        
