@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied,ValidationError
 from rest_framework.parsers import MultiPartParser, FormParser 
 from .models import Car,CarImage,Favorite,Rental
-from .serializers import CarSerializer,CarImageSerializer,FavoriteSerializer,RentalSerializer,BookedDatesSerializer
+from .serializers import CarSerializer,CarImageSerializer,FavoriteSerializer,RentalSerializer,BookedDatesSerializer,OwnerRentalSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import CarFilter
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -195,3 +195,15 @@ class RentalCancelView(DestroyAPIView):
         
         instance.delete()
         
+
+class OwnerRentalsView(ListAPIView):
+    serializer_class = OwnerRentalSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return (
+            Rental.objects.filter(car__owner=self.request.user)
+            .select_related('user','car')
+            .prefetch_related('car__images')
+            .order_by('-created_at')
+        )

@@ -89,3 +89,21 @@ class BookedDatesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rental
         fields = ['start_date','end_date']
+    
+    
+
+class RenterSerializer(serializers.Serializer):
+        id = serializers.IntegerField(read_only=True)
+        first_name = serializers.CharField(read_only=True)
+        last_name = serializers.CharField(read_only=True)
+        phone_number = serializers.CharField(read_only=True)
+        email = serializers.EmailField(read_only=True)
+
+class OwnerRentalSerializer(serializers.ModelSerializer):
+    renter = RenterSerializer(source = 'user',read_only =True)
+    car_details = CarSerializer(source='car',read_only =True)
+    
+    class Meta:
+        model = Rental
+        fields = ['id','renter','car_details','start_date','end_date','days','total_price','created_at']
+        
