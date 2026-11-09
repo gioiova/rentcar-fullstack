@@ -173,8 +173,25 @@ class CarImageDeleteView(DestroyAPIView):
     pagination_class = [IsAuthenticated]
     
     def get_queryset(self):
+        
         return CarImage.objects.filter(
             car_id = self.kwargs['car_id'],
-            car__owner=self.request.user,
+            car__owner=self.request.user, 
+            
         )
+        
+class RentalCancelView(DestroyAPIView):
+    queryset = Rental.objects.all()
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Rental.objects.filter(
+            user=self.request.user
+        )
+    
+    def perform_destroy(self,instance):
+        if instance.start_date <= timezone.localdate():
+            raise ValidationError({'detail':'started or completed rentals cannot be cancelled'})
+        
+        instance.delete()
         
