@@ -53,9 +53,12 @@ function Navbar() {
           {!loading &&
             (user ? (
               <>
-                <span className="font-medium text-blue-400">
-                  {user.first_name}
-                </span>
+               <Link
+                    to="/profile"
+                    className="font-medium text-blue-400 hover:text-blue-300"
+                  >
+                    {user.first_name}
+                </Link>
 
                 <button
                   type="button"
