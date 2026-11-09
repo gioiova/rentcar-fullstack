@@ -13,4 +13,6 @@ export interface Car {
   transmission: string;
   city: string;
   images: CarImage[];
+  fuel_tank_capacity:number,
+  
 }

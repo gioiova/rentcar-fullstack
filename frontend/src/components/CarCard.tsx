@@ -1,4 +1,5 @@
 import type { Car } from '../types/car';
+import { Link } from 'react-router-dom';
 
 interface CarCardProps {
   car: Car;
@@ -43,12 +44,12 @@ function CarCard({ car }: CarCardProps) {
             <span className="text-sm font-normal text-gray-500"> / day</span>
           </p>
 
-          <a
-            href={`/cars/${car.id}`}
+          <Link
+            to={`/cars/${car.id}`}
             className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600"
           >
             View Details
-          </a>
+          </Link>
         </div>
       </div>
     </div>
