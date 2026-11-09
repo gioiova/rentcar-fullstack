@@ -13,10 +13,12 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework import status
 from rest_framework.response import Response
 from django.utils import timezone
+from .pagination import CarPagination
 
 class CarListView(ListAPIView):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
+    pagination_class = CarPagination
     filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter,]
     filterset_class = CarFilter
     
