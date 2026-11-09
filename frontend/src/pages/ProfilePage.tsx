@@ -165,23 +165,34 @@ function ProfilePage() {
             </section>
 
             {/* My Cars */}
+           
             <section>
-              <h2 className="mb-6 text-2xl font-bold">
+            <h2 className="mb-6 text-2xl font-bold">
                 My Cars ({profile.cars.length})
-              </h2>
+            </h2>
 
-              {profile.cars.length === 0 ? (
+            {profile.cars.length === 0 ? (
                 <p className="text-gray-500">
-                  You haven't added any cars yet.
+                You haven't added any cars yet.
                 </p>
-              ) : (
+            ) : (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {profile.cars.map((car) => (
-                    <CarCard key={car.id} car={car} />
-                  ))}
+                {profile.cars.map((car) => (
+                    <div key={car.id} className="flex flex-col gap-3">
+                    <CarCard car={car} />
+
+                    <Link
+                        to={`/cars/${car.id}/edit`}
+                        className="block rounded-lg bg-blue-600 px-4 py-3 text-center font-medium text-white transition hover:bg-blue-700"
+                    >
+                        Edit Car
+                    </Link>
+                    </div>
+                ))}
                 </div>
-              )}
+            )}
             </section>
+
           </>
         )}
       </main>
