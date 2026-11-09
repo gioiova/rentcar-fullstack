@@ -60,7 +60,13 @@ function Navbar() {
                     {user.first_name}
                 </Link>
 
-                <button
+                <Link
+                    to="/add-car"
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                  >
+                    Add Car
+                </Link>
+                              <button
                   type="button"
                   onClick={handleLogout}
                   className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium hover:bg-red-700"
