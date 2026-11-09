@@ -167,3 +167,14 @@ class CarBookedDatesView(ListAPIView):
             car=car,
             end_date__gte=timezone.localdate()
         ).order_by('start_date')
+        
+class CarImageDeleteView(DestroyAPIView):
+    queryset = CarImage.objects.all()
+    pagination_class = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return CarImage.objects.filter(
+            car_id = self.kwargs['car_id'],
+            car__owner=self.request.user,
+        )
+        
