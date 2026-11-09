@@ -46,7 +46,7 @@ function Navbar() {
             Home
           </Link>
 
-          <Link to="/#cars" className="hover:text-blue-400">
+          <Link to="/cars" className="hover:text-blue-400">
             Cars
           </Link>
 
